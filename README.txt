@@ -1,5 +1,6 @@
 Thin Python binding for onetimesecret.com API.
 Unicode-safe.
+Description of API itself you can find here: https://onetimesecret.com/docs/api
 
 Usage:
 
