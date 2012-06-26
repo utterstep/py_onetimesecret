@@ -9,8 +9,8 @@ from functools import wraps
 def server_check(func):
     """
     Decorator that checks, whether server is ready to process our requests or not.
-    Able to wrap only instance of OneTimeSecret class (or any other, that provides .status method, which
-    returns True if all is OK, else False).
+    Able to wrap only method of OneTimeSecret class (or any other, that provides .status method, which
+    returns True if all is OK, else False), or function, first parameter of which is an instance of the OneTimeSecret class
     """
     @wraps(func)
     def checked_func(self, *args, **kwargs):
