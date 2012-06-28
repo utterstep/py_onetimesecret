@@ -189,7 +189,10 @@ class OneTimeSecret(object):
 
         @return: bool
         """
-        urllib2.install_opener(self.opener)
-        url = self.url % "status"
-        raw = urllib2.urlopen(url).read()
-        return json.loads(raw)[u"status"] == u"nominal"
+        try:
+            urllib2.install_opener(self.opener)
+            url = self.url % "status"
+            raw = urllib2.urlopen(url).read()
+            return json.loads(raw)[u"status"] == u"nominal"
+        except (urllib2.URLError, ValueError, KeyError):
+            return False
