@@ -70,7 +70,7 @@ class OneTimeSecret(object):
         Useful fields:
          [*] res["secret_key"]      : key for your secret
          [*] res["metadata_key"]    : key for your secret's meta. With it you can see,
-                                                    whether secret was revealed or not.
+                                                   whether secret was revealed or not.
         Other field's meaning you can obtain from https://onetimesecret.com/docs/api/secrets
 
 
@@ -167,7 +167,7 @@ class OneTimeSecret(object):
         Useful fields:
          [*] res["secret_key"]  : key of the secret associated with this meta
          [*] res["received"]    : time (in POSIX format, UTC), the secret
-                                  associated with this meta was received. 0 if secret wasn't open.
+                                  associated with this meta was received. False if secret wasn't open.
 
         @param meta_key : metadata_key of the secret, you want to lookup
 
@@ -179,7 +179,7 @@ class OneTimeSecret(object):
         raw = urllib2.urlopen(url, urlencode(data)).read()
         res = json.loads(raw)
         if not res.has_key(u"received"):
-            res.update({u"received":0})
+            res.update({u"received":False})
         return res
 
     def status(self):
