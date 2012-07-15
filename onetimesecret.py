@@ -84,7 +84,7 @@ class OneTimeSecret(object):
         @type recipient:    string
         @type ttl:          int
 
-        @return res:        dict
+        @rtype res:        dict
         """
         if ttl is None:
             ttl = 3600 * 24
@@ -114,7 +114,7 @@ class OneTimeSecret(object):
         @type recipient:    string
         @type ttl:          int
 
-        @return res:        dict
+        @rtype res:        dict
         """
         if ttl is None:
             ttl = 3600 * 24
@@ -146,7 +146,7 @@ class OneTimeSecret(object):
         @type secret_key:   string
         @type passphrase:   string
 
-        @return res:        dict
+        @rtype res:        dict
         """
         try:
             data = {"SECRET_KEY": secret_key}
@@ -172,6 +172,8 @@ class OneTimeSecret(object):
         @param meta_key : metadata_key of the secret, you want to lookup
 
         @type meta_key  : string
+
+        @rtype res:        dict
         """
         data = {"METADATA_KEY":meta_key}
 
@@ -187,7 +189,7 @@ class OneTimeSecret(object):
         Checks server's ability to process our request. Also, sets necessary credentials for urllib2.
         Returns True if all is OK, else False.
 
-        @return: bool
+        @rtype: bool
         """
         try:
             urllib2.install_opener(self.opener)
