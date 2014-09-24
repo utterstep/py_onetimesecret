@@ -5,6 +5,7 @@ import urllib2
 import json
 from urllib import urlencode
 from functools import wraps
+import os
 
 def server_check(func):
     """
@@ -75,6 +76,7 @@ class OneTimeSecret(object):
 
 
         @param secret:      secret you want to share
+                            If the secret is a file(absolute path), it will share the contents of the file.
         @param passphrase:  password, if you wish to keep your secret totally confidential
         @param recipient:   recipient's e-mail, if you wish to send him an invitation to see your secret
         @param ttl:         TTL of your secret, in seconds. Set to one day by default
@@ -86,10 +88,19 @@ class OneTimeSecret(object):
 
         @rtype res:        dict
         """
+
         if ttl is None:
             ttl = 3600 * 24
-        data = {"secret":secret.encode("utf-8"),
+
+        if not os.path.exists(os.path.dirname(secret)):
+            data = {"secret":secret.encode("utf-8"),
                 "ttl":ttl}
+        else:
+            a = open(secret, 'r')
+            b = a.read()
+            data = {"secret":b.encode("utf-8"),
+                "ttl":ttl}
+        
         if passphrase:
             data.update({"passphrase":passphrase.encode("utf-8")})
         if recipient:
@@ -161,7 +172,7 @@ class OneTimeSecret(object):
             raise Exception("Check key and passphrase")
 
     @server_check
-    def retrieve_meta(self, meta_key):
+    def retrieve_meta(self, meta_key, show_link=False):
         """
         Retrieves metadata of secret with given METADATA_KEY.
         Useful fields:
@@ -169,7 +180,8 @@ class OneTimeSecret(object):
          [*] res["received"]    : time (in POSIX format, UTC), the secret
                                   associated with this meta was received. False if secret wasn't open.
 
-        @param meta_key : metadata_key of the secret, you want to lookup
+        @param meta_key     : metadata_key of the secret, you want to lookup
+        @param show_link    : Return the secret link(useful for external sharing)
 
         @type meta_key  : string
 
@@ -182,7 +194,12 @@ class OneTimeSecret(object):
         res = json.loads(raw)
         if not res.has_key(u"received"):
             res.update({u"received":False})
-        return res
+        
+        if show_link == True:
+            return "https://onetimesecret.com/secret/%s" %res['secret_key']
+        else:
+            return res
+
 
     def status(self):
         """
