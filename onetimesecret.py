@@ -5,6 +5,7 @@ import urllib2
 import json
 from urllib import urlencode
 from functools import wraps
+import os
 
 def server_check(func):
     """
@@ -61,6 +62,7 @@ class OneTimeSecret(object):
         self.key = api_key
         self.url = "https://%s/api/%s/%s" % (url, self.api_ver, "%s")
         self.opener = create_opener("https://%s/*" % url, username, api_key)
+        self.secret_link_url = "https://onetimesecret.com/secret/"
 
     @server_check
     def share(self, secret, passphrase=None, recipient=None, ttl=None):
@@ -86,10 +88,13 @@ class OneTimeSecret(object):
 
         @rtype res:        dict
         """
+
         if ttl is None:
             ttl = 3600 * 24
-        data = {"secret":secret.encode("utf-8"),
+
+        data = {"secret":secret.encode("utf-8"), 
                 "ttl":ttl}
+        
         if passphrase:
             data.update({"passphrase":passphrase.encode("utf-8")})
         if recipient:
@@ -169,7 +174,7 @@ class OneTimeSecret(object):
          [*] res["received"]    : time (in POSIX format, UTC), the secret
                                   associated with this meta was received. False if secret wasn't open.
 
-        @param meta_key : metadata_key of the secret, you want to lookup
+        @param meta_key     : metadata_key of the secret, you want to lookup
 
         @type meta_key  : string
 
@@ -183,6 +188,50 @@ class OneTimeSecret(object):
         if not res.has_key(u"received"):
             res.update({u"received":False})
         return res
+
+    @server_check
+    def share_file(self, file_path, passphrase=None, recipient=None, ttl=None):
+        """
+        Shares given file_path and returns Python dictionary, containing server response.
+
+        @param file_path:   The file you want to share
+        @param passphrase:  password, if you wish to keep your secret totally confidential
+        @param recipient:   recipient's e-mail, if you wish to send him an invitation to see your secret
+        @param ttl:         TTL of your secret, in seconds. Set to one day by default
+
+        @type secret:       string
+        @type passphrase:   string
+        @type recipient:    string
+        @type ttl:          int
+
+        @rtype res:        dict
+
+        """
+        if os.path.exists(os.path.dirname(file_path)):
+            secret = open(file_path, 'r').read()
+            return self.share(secret, passphrase, recipient, ttl)
+        else:
+            raise Exception('file_path must be absolute')
+
+    @server_check
+    def secret_link(self, meta_key):
+        """
+        Retrieves secret link.
+
+        URL:                https://onetimesecret.com/secret/*secret_key* 
+        @param meta_key:    metadata_key of the secret, you want to lookup
+
+        @type meta_key:     string
+
+        @rtype res:         dict
+        """
+
+        data = {"METADATA_KEY":meta_key}
+        url = self.url % "private/%s" % meta_key
+        raw = urllib2.urlopen(url, urlencode(data)).read()
+        res = json.loads(raw)
+
+        return self.secret_link_url + res['secret_key']
 
     def status(self):
         """
