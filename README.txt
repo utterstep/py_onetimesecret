@@ -1,4 +1,4 @@
-Thin Python binding for onetimesecret.com API.
+Thin Python 3.7 binding for onetimesecret.com API.
 Unicode-safe.
 Description of API itself you can find here: https://onetimesecret.com/docs/api
 
